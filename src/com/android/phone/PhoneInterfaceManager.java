@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ServiceManager;
+import android.provider.Settings;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
@@ -277,6 +278,19 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(url));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mApp.startActivity(intent);
+    }
+
+    public void toggleLTE(boolean on) {
+        int network = -1;
+        if (on) {
+            network = Phone.NT_MODE_GLOBAL;
+        } else {
+            network = Phone.NT_MODE_CDMA;
+        }
+        this.mPhone.setPreferredNetworkType(network,
+                mMainThreadHandler.obtainMessage(99));
+        Settings.Secure.putInt(mApp.getContentResolver(),
+                Settings.Secure.PREFERRED_NETWORK_MODE, network);
     }
 
     private boolean showCallScreenInternal(boolean specifyInitialDialpadState,
